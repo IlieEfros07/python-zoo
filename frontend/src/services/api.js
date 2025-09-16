@@ -55,8 +55,51 @@ export const api = {
   getAnimalsBySpecies: (species) => fetch(`${API_URL}/animals?species=${species}`).then(res => res.json()),
   getAnimalByHealth: (health_status) => fetch(`${API_URL}/animals?health_status=${health_status}`).then(res => res.json()),
 
+  // Animal Images
+  getAnimalImages: (animal_id) => fetch(`${API_URL}/animals/${animal_id}/images`).then(res => res.json()),
+  uploadAnimalImage: (animal_id, imageData) => {
+    const formData = new FormData();
+    formData.append('image', imageData);
+    return fetch(`${API_URL}/animals/${animal_id}/images`, {
+      method: 'POST',
+      body: formData,
+    }).then(res => res.json());
+  },
+  deleteAnimalImage: (animal_id, image_id) => fetch(`${API_URL}/animals/${animal_id}/images/${image_id}`, {
+    method: 'DELETE',
+  }).then(res => res.json()),
 
+  // Keepers Exhibits Assignment
+  getKeeperExhibitAssignment: () => fetch(`${API_URL}/keepers-exhibits`).then(res => res.json()),
+  assignKeeperToExhibit: (data) => fetch(`${API_URL}/keepers-exhibits`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(res => res.json()),
+  getKeeperByExhibit: (exhibit_id) => fetch(`${API_URL}/keepers-exhibits?exhibit_id=${exhibit_id}`).then(res => res.json()),
+  getExhibitByKeeper: (worker_id) => fetch(`${API_URL}/keepers-exhibits?worker_id=${worker_id}`).then(res => res.json()),
+  deleteKeeperAssignment: (id) => fetch(`${API_URL}/keepers-exhibits/${id}`, {
+    method: 'DELETE',
+  }).then(res => res.json()),
 
+// Food inventory
+  getFoodInventory: () => fetch(`${API_URL}/food-inventory`).then(res => res.json()),
+  getFoodItem: (id) => fetch(`${API_URL}/food-inventory/${id}`).then(res => res.json()),
+  createFoodItem: (data) => fetch(`${API_URL}/food-inventory`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(res => res.json()),
+  updateFoodItem: (id, data) => fetch(`${API_URL}/food-inventory/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(res => res.json()),
+  deleteFoodItem: (id) => fetch(`${API_URL}/food-inventory/${id}`, {
+    method: 'DELETE',
+  }).then(res => res.json()),
+  getFoodItemsByType: (type) => fetch(`${API_URL}/food-inventory?type=${type}`).then(res => res.json()),
+  getLowStockItems: (threshold) => fetch(`${API_URL}/food-inventory?low_stock=${threshold}`).then(res => res.json()),
 
 
 
