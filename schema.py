@@ -8,9 +8,8 @@ CREATE TABLE IF NOT EXISTS worker(
     role TEXT NOT NULL CHECK(role IN ('keeper', 'cleaner', 'admin')),
     notes TEXT,
     phone_number TEXT,
-    created_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
-
 
 CREATE TABLE IF NOT EXISTS exhibit(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,7 +18,7 @@ CREATE TABLE IF NOT EXISTS exhibit(
     size_sqm REAL,
     condition TEXT,
     location TEXT NOT NULL,
-    created_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS animal(
@@ -33,7 +32,7 @@ CREATE TABLE IF NOT EXISTS animal(
     weight_kg REAL,
     height_cm REAL,
     is_healthy INTEGER NOT NULL DEFAULT 1,
-    exhibit_id INTEGER NOT NULL,
+    exhibit_id INTEGER,
     FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE SET NULL
 );
 
@@ -64,6 +63,6 @@ CREATE TABLE IF NOT EXISTS food_inventory(
     notes TEXT,
     vendor TEXT,
     purchase_price_per_unit REAL,
-    created_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 """

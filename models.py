@@ -6,7 +6,7 @@ from datetime import datetime
 class WorkerIn(BaseModel):
     first_name: str
     last_name: str
-    role: str = Field(..., regex="^(keeper|cleaner|admin)$")
+    role: str = Field(..., pattern="^(keeper|cleaner|admin)$")
     notes: Optional[str] = None
     phone_number: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.now)
@@ -30,7 +30,7 @@ class ExhibitOut(ExhibitIn):
 class AnimalIn(BaseModel):
     name: str
     species: str
-    sex: str = Field("unknown", regex="^(male|female|unknown)$")
+    sex: str = Field("unknown", pattern="^(male|female|unknown)$")
     date_of_birth: Optional[datetime] = None
     intake_date: Optional[datetime] = None
     description: Optional[str] = None
@@ -66,7 +66,7 @@ class KeeperExhibitOut(KeeperExhibitIn):
 class FoodInventoryIn(BaseModel):
     name: str
     quantity: float = 0.0
-    unit: str = Field(..., regex="^(kg|g|l|ml|pieces)$")
+    unit: str = Field(..., pattern="^(kg|g|l|ml|pieces)$")
     type: Optional[str] = None
     notes: Optional[str] = None
     vendor: Optional[str] = None
