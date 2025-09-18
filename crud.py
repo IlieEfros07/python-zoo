@@ -10,7 +10,7 @@ def addWorker(worker: models.WorkerIn):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO workers (first_name, last_name, role, notes, phone_number, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+    cursor.execute("INSERT INTO worker (first_name, last_name, role, notes, phone_number, created_at) VALUES (?, ?, ?, ?, ?, ?)",
              (worker.first_name, worker.last_name, worker.role, worker.notes, worker.phone_number, worker.created_at))
     worker_id = cursor.lastrowid
     conn.commit()
@@ -24,7 +24,7 @@ def getWorkers():
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM workers")
+    cursor.execute("SELECT * FROM worker")
     rows = cursor.fetchall()
     workers = [dict(row) for row in rows]
     conn.close()
@@ -37,7 +37,7 @@ def getWorkerById(worker_id: int):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM workers WHERE id = ?", (worker_id,))
+    cursor.execute("SELECT * FROM worker WHERE id = ?", (worker_id,))
     row = cursor.fetchone()
     conn.close()
     if row is None:
@@ -52,7 +52,7 @@ def updateWorker(worker_id: int, worker: models.WorkerIn):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE workers SET first_name = ?, last_name = ?, role = ?, notes = ?, phone_number = ? WHERE id = ?",
+    cursor.execute("UPDATE worker SET first_name = ?, last_name = ?, role = ?, notes = ?, phone_number = ? WHERE id = ?",
              (worker.first_name, worker.last_name, worker.role, worker.notes, worker.phone_number, worker_id))
     if cursor.rowcount == 0:
       conn.close()
@@ -70,7 +70,7 @@ def deleteWorker(worker_id: int):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM workers WHERE id = ?", (worker_id,))
+    cursor.execute("DELETE FROM worker WHERE id = ?", (worker_id,))
     if cursor.rowcount == 0:
       conn.close()
       raise HTTPException(status_code=404, detail="Worker not found")
@@ -87,7 +87,7 @@ def getWorkersByRole(role: str):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM workers WHERE role = ?", (role,))  
+    cursor.execute("SELECT * FROM worker WHERE role = ?", (role,))  
     rows = cursor.fetchall()
     workers = [dict(row) for row in rows]
     conn.close()
@@ -190,8 +190,8 @@ def addAnimal(animal: models.AnimalIn):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO animal (name, species, sex, date_of_birth, intake_date, description, weight_kg, height_cm, is_healthy, exhibit_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-             (animal.name, animal.species, animal.sex, animal.date_of_birth, animal.intake_date, animal.description, animal.weight_kg, animal.height_cm, animal.is_healthy, animal.exhibit_id, animal.created_at))
+    cursor.execute("INSERT INTO animal (name, species, sex, date_of_birth, intake_date, description, weight_kg, height_cm, is_healthy, exhibit_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (animal.name, animal.species, animal.sex, animal.date_of_birth, animal.intake_date, animal.description, animal.weight_kg, animal.height_cm, animal.is_healthy, animal.exhibit_id))
     animal_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -413,7 +413,7 @@ def getKeepersByExhibit(exhibit_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-      SELECT w.* FROM workers w
+      SELECT w.* FROM worker w
       JOIN keeper_exhibit ke ON w.id = ke.keeper_id
       WHERE ke.exhibit_id = ?
     """, (exhibit_id,))
@@ -459,8 +459,8 @@ def addFoodItem(item: models.FoodInventoryIn):
   try:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO food_inventory (name, quantity, unit, expiration_date, supplier, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-             (item.name, item.quantity, item.unit, item.expiration_date, item.supplier, item.created_at))
+    cursor.execute("INSERT INTO food_inventory (name, quantity, unit, vendor, created_at) VALUES (?, ?, ?, ?, ?)",
+             (item.name, item.quantity, item.unit, item.vendor, item.created_at))
     item_id = cursor.lastrowid
     conn.commit()
     conn.close()

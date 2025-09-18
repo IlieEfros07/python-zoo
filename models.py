@@ -38,7 +38,6 @@ class AnimalIn(BaseModel):
     height_cm: Optional[float] = None
     is_healthy: bool = True
     exhibit_id: int
-    created_at: datetime = Field(default_factory=datetime.now)
     
 class AnimalOut(AnimalIn):
     id: int
