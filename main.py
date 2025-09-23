@@ -1,11 +1,23 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
 from db import init_db
 import crud
 import models
 
 app = FastAPI()
 
+app = FastAPI(title="Zoo CRM")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 init_db()
+os.makedirs("static/images", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def read_root():
@@ -17,16 +29,24 @@ async def read_root():
   return crud.root()
 
 @app.post("/workers", response_model=models.WorkerOut)
-async def create_worker(worker: models.WorkerIn):
-  """
-  return: WorkerOut -> Created worker object
-  params: worker: WorkerIn - Worker data to create
-  description: Creates a new worker in the system
-  """
-  try:
-    return crud.addWorker(worker)
-  except Exception as e:
-    raise HTTPException(status_code=400, detail=str(e))
+def add_worker(
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    role: str = Form(...),
+    notes: str = Form(...),
+    phone_number: str = Form(...),
+):
+    worker = models.WorkerIn(
+        first_name=first_name,
+        last_name=last_name,
+        role=role,
+        notes=notes,
+        phone_number=phone_number,
+    )
+    try:
+      return crud.addWorker(worker)
+    except Exception as e:
+      raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/workers")
 async def get_workers():
@@ -90,16 +110,19 @@ async def get_workers_by_role(role: str):
     raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/exhibits", response_model=models.ExhibitOut)
-async def create_exhibit(exhibit: models.ExhibitIn):
-  """
-  return: ExhibitOut -> Created exhibit object
-  params: exhibit: ExhibitIn - Exhibit data to create
-  description: Creates a new exhibit in the system
-  """
-  try:
-    return crud.addExhibit(exhibit)
-  except Exception as e:
-    raise HTTPException(status_code=400, detail=str(e))
+
+def add_exhibit(
+    name: str = Form(...),
+    description: str = Form(...),
+    size_sqm: float = Form(...),
+    condition: str = Form(...),
+    location: str = Form(...),
+):
+    exhibit = models.ExhibitIn(name=name, description=description, size_sqm=size_sqm, condition=condition, location=location)
+    try:
+      return crud.addExhibit(exhibit)
+    except Exception as e:
+      raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/exhibits", response_model=list[models.ExhibitOut])
 async def get_exhibits():
@@ -163,16 +186,22 @@ async def get_exhibits_by_location(location: str):
     raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/animals", response_model=models.AnimalOut)
-async def create_animal(animal: models.AnimalIn):
-  """
-  return: AnimalOut -> Created animal object
-  params: animal: AnimalIn - Animal data to create
-  description: Creates a new animal in the system
-  """
-  try:
-    return crud.addAnimal(animal)
-  except Exception as e:
-    raise HTTPException(status_code=400, detail=str(e))
+def add_animal(
+    name: str = Form(...),
+    species: str = Form(...),
+    sex: str = Form(...),
+    date_of_birth: str = Form(...),
+    intake_date: str = Form(...),
+    description: str = Form(...),
+    weight_kg: float = Form(...),
+    height_cm: float = Form(...),
+    exhibit_id: int = Form(...),
+):
+    animal = models.AnimalIn(name=name, species=species, sex=sex, date_of_birth=date_of_birth, intake_date=intake_date, description=description, weight_kg=weight_kg, height_cm=height_cm, exhibit_id=exhibit_id)
+    try:
+      return crud.addAnimal(animal)
+    except Exception as e:
+      raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/animals", response_model=list[models.AnimalOut])
 async def get_animals():
@@ -260,16 +289,20 @@ async def get_animals_by_health(is_healthy: bool):
     raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/animal-images", response_model=models.AnimalImageOut)
-async def create_animal_image(animal_image: models.AnimalImageIn):
-  """
-  return: AnimalImageOut -> Created animal image object
-  params: animal_image: AnimalImageIn - Animal image data to create
-  description: Adds an image for an animal
-  """
-  try:
-    return crud.addAnimalImage(animal_image)
-  except Exception as e:
-    raise HTTPException(status_code=400, detail=str(e))
+def add_animal_image(
+    animal_id: int = Form(...),
+    file: UploadFile = File(...),
+    caption: str = Form(...),
+):
+    path = f"static/images/{file.filename}"
+    with open(path, "wb") as f:
+        f.write(file.file.read())
+       
+    image = models.AnimalImageIn(animal_id=animal_id, image_url=path, caption=caption)
+    try:
+      return crud.addAnimalImage(image)
+    except Exception as e:
+      raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/animal-images/animal/{animal_id}", response_model=list[models.AnimalImageOut])
 async def get_animal_images_by_animal(animal_id: int):
@@ -296,16 +329,16 @@ async def delete_animal_image(image_id: int):
     raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/keeper-exhibits", response_model=models.KeeperExhibitOut)
-async def assign_keeper_to_exhibit(keeper_exhibit: models.KeeperExhibitIn):
-  """
-  return: KeeperExhibitOut -> Created assignment object
-  params: keeper_exhibit: KeeperExhibitIn - Assignment data to create
-  description: Assigns a keeper to an exhibit
-  """
-  try:
-    return crud.assignKeeperToExhibit(keeper_exhibit)
-  except Exception as e:
-    raise HTTPException(status_code=400, detail=str(e))
+def add_keeper_exhibit(
+    keeper_id: int = Form(...),
+    exhibit_id: int = Form(...),
+    assigned_since: str = Form(...),
+):
+    link = models.KeeperExhibitIn(keeper_id=keeper_id, exhibit_id=exhibit_id, assigned_since=assigned_since)
+    try:
+        return crud.assignKeeperToExhibit(link)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/keeper-exhibits", response_model=list[models.KeeperExhibitOut])
 async def get_keeper_exhibits():
@@ -369,16 +402,22 @@ async def create_food_inventory(item: models.FoodInventoryIn):
     raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/food-inventory", response_model=list[models.FoodInventoryOut])
-async def get_food_inventory():
-  """
-  return: list[FoodInventoryOut] -> List of all food items
-  params: None
-  description: Returns all food items in inventory
-  """
+
+
+def add_food(
+  name: str = Form(...),
+  quantity: float = Form(...),
+  unit: str = Form(...),
+  type: str = Form(...),
+  notes: str = Form(...),
+  vendor: str = Form(...),
+  purchase_price_per_unit: float = Form(...),
+):
+  food = models.FoodInventoryIn(name=name, quantity=quantity, unit=unit, type=type, notes=notes, vendor=vendor, purchase_price_per_unit=purchase_price_per_unit)
   try:
-    return crud.getFoodInventory()
+    return crud.addFoodItem(food)
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/food-inventory/{item_id}", response_model=models.FoodInventoryOut)
 async def get_food_item(item_id: int):
