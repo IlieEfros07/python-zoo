@@ -109,7 +109,7 @@ const Dashboard = () => {
       <div>
         <button onClick={() => navigate("/animals")}>Animals</button>
         <button onClick={() => navigate("/exhibits")}>Exhibits</button>
-        <button onClick={() => navigate("/staff")}>Workers</button>
+        <button onClick={() => navigate("/Workers")}>Workers</button>
         <button onClick={() => navigate("/inventory")}>Check Inventory</button>
       </div>
     </div>

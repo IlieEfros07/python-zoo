@@ -1,8 +1,10 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from db import init_db
 import crud
 import models
+import os
 
 app = FastAPI()
 
